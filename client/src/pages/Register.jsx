@@ -1,9 +1,21 @@
-import React from 'react'
+import React from "react";
+import { Link } from "react-router-dom";
 
 const Register = () => {
   return (
-    <div>Register</div>
-  )
-}
+    <div className="auth">
+      <h1>Register</h1>
 
-export default Register
+      <form>
+        <input required type="text" placeholder="username"/>
+        <input required type="email" placeholder="email"/>
+        <input required type="text" placeholder="password"/>
+        <button>Register</button>
+        <p>Thisis an error!</p>
+        <span>Already have an account? <Link to='/login'>Login</Link></span>
+      </form>
+    </div>
+  );
+};
+
+export default Register;
