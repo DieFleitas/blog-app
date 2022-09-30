@@ -1,60 +1,74 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import Edit from "../img/edit.png";
+import Delete from "../img/delete.png";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import Menu from "../components/Menu";
+import axios from "axios";
+import moment from "moment";
+import { useContext } from "react";
+import { AuthContext } from "../context/authContext";
+import DOMPurify from "dompurify";
 
-const Menu = ({cat}) => {
-  const [posts, setPosts] = useState([]);
+const Single = () => {
+  const [post, setPost] = useState({});
 
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const postId = location.pathname.split("/")[2];
+
+  const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`/posts/?cat=${cat}`);
-        setPosts(res.data);
-      } catch (error) {
-        console.error(error.message);
+        const res = await axios.get(`/posts/${postId}`);
+        setPost(res.data);
+      } catch (err) {
+        console.log(err);
       }
     };
     fetchData();
-  }, [cat]);
-  // const posts = [
-  //   {
-  //     id: 1,
-  //     title: "Lorem ipsum dolor sit amet consectetur adipisicing elit",
-  //     desc: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!",
-  //     img: "https://images.pexels.com/photos/7008010/pexels-photo-7008010.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //   },
-  //   {
-  //     id: 2,
-  //     title: "Lorem ipsum dolor sit amet consectetur adipisicing elit",
-  //     desc: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!",
-  //     img: "https://images.pexels.com/photos/6489663/pexels-photo-6489663.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //   },
-  //   {
-  //     id: 3,
-  //     title: "Lorem ipsum dolor sit amet consectetur adipisicing elit",
-  //     desc: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!",
-  //     img: "https://images.pexels.com/photos/4230630/pexels-photo-4230630.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //   },
-  //   {
-  //     id: 4,
-  //     title: "Lorem ipsum dolor sit amet consectetur adipisicing elit",
-  //     desc: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. A possimus excepturi aliquid nihil cumque ipsam facere aperiam at! Ea dolorem ratione sit debitis deserunt repellendus numquam ab vel perspiciatis corporis!",
-  //     img: "https://images.pexels.com/photos/6157049/pexels-photo-6157049.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2",
-  //   },
-  // ];
+  }, [postId]);
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/posts/${postId}`);
+      navigate("/");
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   return (
-    <div className="menu">
-      <h1>Other posts you may like</h1>
-      {posts.map(post => (
-        <div className="post" key={post.id}>
-            <img src={post.img} alt="" />
-            <h2>{post.title}</h2>
-            <button>Read More</button>
+    <div className="single">
+      <div className="content">
+        <img src={`../upload/${post?.img}`} alt="" />
+        <div className="user">
+          {post.userImg && <img src={post.userImg} alt="" />}
+          <div className="info">
+            <span>{post.username}</span>
+            <p>Posted {moment(post.date).fromNow()}</p>
+          </div>
+          {currentUser.username === post.username && (
+            <div className="edit">
+              <Link to={`/write?edit=2`} state={post}>
+                <img src={Edit} alt="" />
+              </Link>
+              <img onClick={handleDelete} src={Delete} alt="" />
+            </div>
+          )}
         </div>
-      ))}
+        <h1>{post.title}</h1>
+        <p
+          dangerouslySetInnerHTML={{
+            __html: DOMPurify.sanitize(post.desc),
+          }}
+        ></p>{" "}
+      </div>
+      <Menu cat={post.cat} />
     </div>
   );
 };
 
-export default Menu;
+export default Single;
