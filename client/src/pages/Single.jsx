@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
-import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import Menu from "../components/Menu";
 import Edit from "../img/edit.png";
 import Delete from "../img/edit.png";
@@ -32,7 +32,7 @@ const Single = () => {
   const handleDelete = async () => {
     try {
        await axios.delete(`/posts/${postId}`);
-      Navigate('/')
+      navigate('/')
     } catch (error) {
       console.error(error.message);
     }
